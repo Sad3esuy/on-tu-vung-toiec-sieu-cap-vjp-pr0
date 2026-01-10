@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Vocabulary Siêu Cấp Vjp Pr0</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb', // Primary Blue
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for 3D Flip Card not built-in to default Tailwind */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; 
+        }
+        
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Tinder Swipe Styles */
+        .swipe-card {
+            cursor: grab;
+            transition: transform 0.1s;
+            touch-action: none; /* Prevent scrolling while swiping */
+            user-select: none;
+        }
+        .swipe-card.is-animating {
+            transition: transform 0.5s ease-in-out;
+        }
+        .swipe-card:active {
+            cursor: grabbing;
+        }
+
+        /* Memory Game 3D Flip */
+        .game-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .game-card.flipped .game-card-inner {
+            transform: rotateY(180deg);
+        }
+        /* Matched card animation */
+        .game-card.matched {
+            animation: matchSuccess 0.6s forwards;
+        }
+        @keyframes matchSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animation classes */
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-matched {
+            animation: popOut 0.5s forwards;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="app.goHome()">
+                    <i class="fa-solid fa-graduation-cap text-3xl text-brand-600 mr-2"></i>
+                    <span class="font-bold text-xl tracking-tight text-gray-800">TOEIC<span class="text-brand-600">SieuCapVjpPr0</span></span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-4">
+                    <button onclick="app.goHome()" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md font-medium transition">Dashboard</button>
+                    <button onclick="app.resetProgress()" class="text-red-500 hover:text-red-700 px-3 py-2 text-sm rounded-md transition"><i class="fa-solid fa-trash-can mr-1"></i> Reset Data</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="app-container" class="flex-grow max-w-4xl mx-auto w-full p-4 relative">
+        
+        <!-- LOGIN VIEW -->
+        <section id="view-login" class="fade-in max-w-md mx-auto pt-10 text-center">
+            <div class="mb-8">
+                <i class="fa-solid fa-graduation-cap text-6xl text-brand-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-800">TOEIC Master</h1>
+                <p class="text-gray-500">Vui lòng đăng nhập để tiếp tục</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div class="mb-4 text-left">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Mã truy cập (Access Code)</label>
+                    <input type="text" id="access-code" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none transition uppercase" placeholder="Nhập mã code...">
+                </div>
+                
+                <button onclick="app.handleLogin()" class="w-full bg-brand-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-brand-700 transition mb-4 shadow-lg shadow-brand-200">
+                    Bắt đầu học
+                </button>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-400 text-sm">Hoặc</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+
+                <div id="reader-container" class="hidden my-4 overflow-hidden rounded-lg">
+                    <div id="reader" style="width: 100%"></div>
+                    <button onclick="app.stopScanner()" class="mt-2 text-red-500 text-sm underline">Đóng Camera</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <button onclick="app.startScanner()" id="btn-scan-qr" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-camera mr-2"></i> Quét Camera
+                    </button>
+                    
+                    <button onclick="document.getElementById('qr-input-file').click()" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-image mr-2"></i> Tải ảnh QR
+                    </button>
+                    <input type="file" id="qr-input-file" class="hidden" accept="image/*" onchange="app.handleQrFile(this)">
+                </div>
+            </div>
+            <p class="text-gray-400 text-xs mt-6">Code mẫu: NAPCARD20KTHAGAONTOIEC</p>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="hidden fade-in space-y-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-brand-900">Chọn chủ đề để học</h1>
+                <p class="text-gray-500 mt-2">Nâng cao vốn từ vựng TOEIC mỗi ngày</p>
+            </div>
+
+            <div id="topic-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Topics will be injected here via JS -->
+            </div>
+        </section>
+
+        <!-- TOPIC ACTION SELECTOR (Popup Modal-like view) -->
+        <section id="view-actions" class="hidden fade-in text-center pt-10">
+            <button onclick="app.goHome()" class="absolute top-0 left-0 text-gray-500 hover:text-brand-600"><i class="fa-solid fa-arrow-left mr-1"></i> Quay lại</button>
+            
+            <h2 id="action-topic-title" class="text-2xl font-bold text-brand-800 mb-8">Topic Title</h2>
+            
+            <div class="grid grid-cols-1 gap-4 max-w-md mx-auto">
+                <button onclick="app.startFlashcards()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-brand-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-brand-700 group-hover:text-brand-500">Flashcards</h3>
+                        <p class="text-sm text-gray-500">Học từ mới qua thẻ lật</p>
+                    </div>
+                    <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-xl group-hover:bg-brand-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                </button>
+
+                <button onclick="app.startQuiz()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-green-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-green-700 group-hover:text-green-500">Quiz Test</h3>
+                        <p class="text-sm text-gray-500">Kiểm tra trắc nghiệm nhanh</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl group-hover:bg-green-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-clipboard-question"></i>
+                    </div>
+                </button>
+
+                <button onclick="app.startGame()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-purple-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-purple-700 group-hover:text-purple-500">Memory Game</h3>
+                        <p class="text-sm text-gray-500">Ghép thẻ từ vựng và nghĩa</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl group-hover:bg-purple-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- FLASHCARD MODE (Tinder Swipe) -->
+        <section id="view-flashcard" class="hidden fade-in h-96 sm:min-h-[60vh] flex flex-col items-center relative pt-4">
+            <!-- Header Controls -->
+            <div class="w-full flex justify-between items-center mb-4 max-w-sm px-4">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600 p-2"><i class="fa-solid fa-times text-2xl"></i></button>
+                <div class="text-gray-500 font-bold bg-white px-3 py-1 rounded-full shadow-sm text-sm"><span id="fc-progress">1/10</span></div>
+                <button onclick="app.resetCardPosition()" class="text-yellow-500 hover:text-yellow-600 p-2"><i class="fa-solid fa-undo text-xl"></i></button>
+            </div>
+
+            <!-- Swipe Container -->
+            <div class="relative w-full max-w-sm h-[400px] sm:h-[450px] flex justify-center items-center perspective-1000">
+                
+                <!-- Background Decoration (Stack effect) -->
+                <div class="absolute w-[90%] h-[90%] bg-white rounded-2xl shadow-sm transform translate-y-4 scale-95 opacity-50 z-0"></div>
+                <div class="absolute w-[95%] h-[95%] bg-white rounded-2xl shadow-md transform translate-y-2 scale-98 opacity-70 z-10"></div>
+
+                <!-- Active Card -->
+                <div id="flashcard-swipe" class="swipe-card absolute w-full h-full z-20 cursor-grab transform-style-3d bg-transparent">
+                    <div id="flashcard-inner" class="relative w-full h-full transition-transform duration-500 transform-style-3d shadow-xl rounded-2xl cursor-pointer" onclick="app.flipCard()">
+                        
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-2xl backface-hidden flex flex-col items-center justify-center border border-gray-100 p-6 select-none">
+                            <span class="text-gray-300 text-xs font-bold uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-full mb-6">Vocabulary</span>
+                            <h2 id="fc-front" class="text-4xl sm:text-5xl font-bold text-gray-800 text-center break-words max-w-full">Vocabulary</h2>
+                            <p id="fc-pronunciation" class="text-brand-500 mt-3 font-mono text-lg font-medium bg-blue-50 px-3 py-1 rounded-lg">/pronunciation/</p>
+                            
+                            <!-- Swipe Hints Overlay -->
+                            <div id="swipe-nope" class="absolute top-8 right-8 border-4 border-red-500 rounded px-2 py-1 transform rotate-12 opacity-0 transition-opacity pointer-events-none">
+                                <span class="text-red-500 font-extrabold text-2xl uppercase tracking-wider">HỌC LẠI</span>
+                            </div>
+                            <div id="swipe-like" class="absolute top-8 left-8 border-4 border-green-500 rounded px-2 py-1 transform -rotate-12 opacity-0 transition-opacity pointer-events-none">
+                                <span class="text-green-500 font-extrabold text-2xl uppercase tracking-wider">ĐÃ THUỘC</span>
+                            </div>
+
+                            <p class="absolute bottom-6 text-gray-300 text-sm animate-pulse flex items-center">
+                                <i class="fa-solid fa-hand-pointer mr-2"></i> Chạm để lật
+                            </p>
+                        </div>
+                        
+                        <div class="absolute w-full h-full bg-slate-800 text-white rounded-2xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 border border-slate-600 select-none">
+                            <!-- New Layout: Vocab -> Meaning -->
+                            <h2 id="fc-back-en" class="text-3xl font-bold text-brand-300 mb-1">Vocabulary</h2>
+                            <p id="fc-back-pron" class="text-gray-400 font-mono text-sm mb-6">/pronunciation/</p>
+                            
+                            <div class="w-16 h-1 bg-gray-600 rounded mb-6"></div>
+
+                            <span class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Meaning</span>
+                            <h2 id="fc-back" class="text-2xl sm:text-3xl font-bold text-center break-words leading-tight mb-4 text-white">Nghĩa tiếng Việt</h2>
+                            
+                            <button onclick="event.stopPropagation(); app.playAudio()" class="w-14 h-14 bg-brand-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:bg-brand-500 transition active:scale-95">
+                                <i class="fa-solid fa-volume-high text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls (Bottom Buttons) -->
+            <div class="flex gap-6 mt-6 sm:mt-8 w-full max-w-xs justify-center z-30">
+                <button onclick="app.triggerSwipe('left')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-red-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-red-50 transition flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button onclick="app.triggerSwipe('right')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-green-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-green-50 transition flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+            </div>
+
+            <div id="fc-complete-msg" class="hidden absolute inset-0 bg-white z-50 flex flex-col items-center justify-center text-center p-6 rounded-3xl">
+                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                    <i class="fa-solid fa-check text-4xl text-green-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Tuyệt vời!</h2>
+                <p class="text-gray-500 mb-8">Bạn đã hoàn thành các thẻ trong chủ đề này.</p>
+                <button onclick="app.goHome()" class="px-8 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-lg hover:bg-brand-700 hover:shadow-xl transition transform hover:-translate-y-1">
+                    Về trang chủ
+                </button>
+            </div>
+        </section>
+
+        <!-- QUIZ MODE (Keep as is, just ensure responsive padding) -->
+        <section id="view-quiz" class="hidden fade-in max-w-lg mx-auto pt-4 px-2">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-arrow-left"></i> Thoát</button>
+                <div class="font-bold text-brand-600">Điểm: <span id="quiz-score">0</span></div>
+            </div>
+
+            <div id="quiz-container">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-brand-500 mb-6 text-center">
+                    <p class="text-gray-500 uppercase text-xs font-bold mb-2">Chọn nghĩa đúng của từ:</p>
+                    <h2 id="quiz-question" class="text-3xl font-bold text-brand-800">Question Word</h2>
+                </div>
+
+                <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                    <!-- Buttons injected via JS -->
+                </div>
+                
+                <div id="quiz-feedback" class="mt-4 text-center h-8 font-bold text-lg transition-all opacity-0"></div>
+                
+                <button id="quiz-next-btn" onclick="app.nextQuiz()" class="w-full mt-6 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-lg hover:bg-brand-700 transform transition hidden">Câu tiếp theo <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-result" class="hidden text-center bg-white p-8 rounded-2xl shadow-lg">
+                <div class="text-6xl text-brand-500 mb-4"><i class="fa-solid fa-trophy"></i></div>
+                <h2 class="text-2xl font-bold mb-2">Hoàn thành bài kiểm tra!</h2>
+                <p class="text-gray-600 mb-6">Điểm số của bạn: <span id="quiz-final-score" class="font-bold text-brand-600 text-xl"></span></p>
+                <button onclick="app.showActions()" class="px-6 py-2 bg-brand-600 text-white rounded-lg shadow hover:bg-brand-700">Tiếp tục học</button>
+            </div>
+        </section>
+
+        <!-- GAME MODE -->
+        <section id="view-game" class="hidden fade-in max-w-lg mx-auto pt-2">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-arrow-left"></i> Thoát</button>
+                <div class="font-bold text-brand-600">Cặp còn lại: <span id="game-left">6</span></div>
+            </div>
+            
+            <div id="game-grid" class="grid grid-cols-4 gap-2 md:gap-3 h-full">
+                <!-- Cards injected here -->
+            </div>
+
+            <div id="game-win" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white p-8 rounded-2xl shadow-2xl text-center animate-bounce">
+                    <h2 class="text-3xl font-bold text-brand-600 mb-2">Xuất sắc!</h2>
+                    <p class="text-gray-600 mb-4">Bạn đã ghép đúng tất cả các thẻ.</p>
+                    <button onclick="app.showActions()" class="px-6 py-2 bg-brand-600 text-white rounded-lg">Chơi lại / Thoát</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t mt-auto py-6 text-center text-gray-400 text-sm">
+        <p>&copy; 2026 TOEIC Vocabulary Siêu Cấp Vjp Pr0. All-in-one Learning App.</p> dev by Sadmesuy ❤️
+    </footer>
+
+    <!-- LOGIC -->
+    <script>
+        // 1. DATA SOURCE
+        const vocabularyData = [
+            {
+                id: 'shopping_food',
+                title: 'Mua sắm & Nhà hàng',
+                icon: 'fa-cart-shopping',
+                color: 'bg-blue-500',
+                words: [
+                    { en: 'souvenir', vi: 'quà lưu niệm', pron: '/ˌsuːvəˈnɪr/' },
+                    { en: 'be arranged', vi: 'được sắp xếp', pron: '/əˈreɪndʒd/' },
+                    { en: 'be on display', vi: 'được trưng bày', pron: '/dɪˈspleɪ/' },
+                    { en: 'cash register', vi: 'máy tính tiền', pron: '/ˈkæʃ ˌredʒɪstər/' },
+                    { en: 'receipt', vi: 'hóa đơn', pron: '/rɪˈsiːt/' },
+                    { en: 'warranty', vi: 'bảo hành', pron: '/ˈwɔːrənti/' },
+                    { en: 'refund', vi: 'hoàn tiền', pron: '/ˈriːfʌnd/' },
+                    { en: 'ingredients', vi: 'nguyên liệu', pron: '/ɪnˈɡriːdiənts/' },
+                    { en: 'out of stock', vi: 'hết hàng', pron: '/aʊt əv stɒk/' },
+                    { en: 'reservation', vi: 'đặt chỗ trước', pron: '/ˌrezərˈveɪʃn/' }
+                ]
+            },
+            {
+                id: 'travel_museum',
+                title: 'Du lịch & Bảo tàng',
+                icon: 'fa-plane-departure',
+                color: 'bg-teal-500',
+                words: [
+                    { en: 'exhibit', vi: 'vật trưng bày', pron: '/ɪɡˈzɪbɪt/' },
+                    { en: 'landmark', vi: 'danh thắng/cột mốc', pron: '/ˈlændmɑːrk/' },
+                    { en: 'admission free', vi: 'miễn phí vào cửa', pron: '/ədˈmɪʃn friː/' },
+                    { en: 'tourist attraction', vi: 'điểm thu hút khách', pron: '/əˈtrækʃn/' },
+                    { en: 'itinerary', vi: 'lịch trình', pron: '/aɪˈtɪnərəri/' },
+                    { en: 'luggage', vi: 'hành lý', pron: '/ˈlʌɡɪdʒ/' },
+                    { en: 'passenger', vi: 'hành khách', pron: '/ˈpæsɪndʒər/' },
+                    { en: 'sculpture', vi: 'tác phẩm điêu khắc', pron: '/ˈskʌlptʃər/' },
+                    { en: 'boarding pass', vi: 'thẻ lên máy bay', pron: '/ˈbɔːrdɪŋ pæs/' }
+                ]
+            },
+            {
+                id: 'office_business',
+                title: 'Văn phòng & Kinh doanh',
+                icon: 'fa-briefcase',
+                color: 'bg-indigo-500',
+                words: [
+                    { en: 'agenda', vi: 'chương trình nghị sự', pron: '/əˈdʒendə/' },
+                    { en: 'conference', vi: 'hội nghị', pron: '/ˈkɒnfərəns/' },
+                    { en: 'proposal', vi: 'đề xuất', pron: '/prəˈpəʊzl/' },
+                    { en: 'deadline', vi: 'hạn chót', pron: '/ˈdedlaɪn/' },
+                    { en: 'invoice', vi: 'hóa đơn (thanh toán)', pron: '/ˈɪnvɔɪs/' },
+                    { en: 'signature', vi: 'chữ ký', pron: '/ˈsɪɡnətʃər/' },
+                    { en: 'quarterly', vi: 'hàng quý', pron: '/ˈkwɔːrtərli/' },
+                    { en: 'recruit', vi: 'tuyển dụng', pron: '/rɪˈkruːt/' }
+                ]
+            }
+        ];
+
+        // 2. STATE MANAGEMENT
+        const app = {
+            data: vocabularyData,
+            config: {
+                correctCode: "NAPCARD20KTHAGAONTOIEC"
+            },
+            state: {
+                isLoggedIn: false,
+                html5QrCode: null,
+                currentTopicIndex: null,
+                learnedWords: {}, 
+                flashcardQueue: [],
+                currentCardIndex: 0,
+                quizScore: 0,
+                quizQueue: [],
+                gameCards: [],
+                gameSelected: [],
+                gameMatches: 0
+            },
+
+            // --- Initialization ---
+            init() {
+                // Check Session Storage
+                if (sessionStorage.getItem('toeic_auth') === 'true') {
+                    this.state.isLoggedIn = true;
+                }
+
+                if (this.state.isLoggedIn) {
+                    this.loadProgress();
+                    this.goHome();
+                } else {
+                    this.showLogin();
+                }
+            },
+
+            showLogin() {
+                this.hideAllViews();
+                document.getElementById('view-login').classList.remove('hidden');
+                document.querySelector('nav').classList.add('hidden'); // Hide nav on login
+            },
+
+            handleLogin() {
+                const input = document.getElementById('access-code').value.trim().toUpperCase();
+                if (input === this.config.correctCode) {
+                    this.completeLogin();
+                } else {
+                    alert('Mã code không chính xác! Vui lòng thử lại.');
+                }
+            },
+
+            completeLogin() {
+                this.state.isLoggedIn = true;
+                sessionStorage.setItem('toeic_auth', 'true');
+                this.stopScanner();
+                document.querySelector('nav').classList.remove('hidden');
+                this.loadProgress();
+                this.goHome();
+            },
+
+            // --- QR Scanner ---
+            startScanner() {
+                document.getElementById('reader-container').classList.remove('hidden');
+                // Hide buttons area while scanning if desired, or just manage state
+                
+                if (!this.state.html5QrCode) {
+                    this.state.html5QrCode = new Html5Qrcode("reader");
+                }
+
+                const qrCodeSuccessCallback = (decodedText, decodedResult) => {
+                    this.verifyCode(decodedText);
+                };
+                
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                
+                this.state.html5QrCode.start({ facingMode: "environment" }, config, qrCodeSuccessCallback)
+                .catch(err => {
+                    console.error("Error starting QR scanner", err);
+                    alert("Không thể mở camera. Vui lòng cấp quyền hoặc nhập code thủ công.");
+                    this.stopScanner();
+                });
+            },
+
+            handleQrFile(input) {
+                if (input.files.length === 0) return;
+                
+                const imageFile = input.files[0];
+                const html5QrCode = new Html5Qrcode("reader");
+                
+                // Show loading state if needed
+                
+                html5QrCode.scanFile(imageFile, true)
+                .then(decodedText => {
+                    this.verifyCode(decodedText);
+                })
+                .catch(err => {
+                    alert('Không tìm thấy mã QR trong ảnh này. Vui lòng thử ảnh khác.');
+                    console.error("Error scanning file", err);
+                });
+            },
+
+            verifyCode(code) {
+                if (code === this.config.correctCode) {
+                    if (this.state.html5QrCode && this.state.html5QrCode.isScanning) {
+                         this.state.html5QrCode.stop().then(() => this.completeLogin());
+                    } else {
+                         this.completeLogin();
+                    }
+                } else {
+                    alert("Mã QR không hợp lệ!");
+                }
+            },
+
+            stopScanner() {
+                if (this.state.html5QrCode && this.state.html5QrCode.isScanning) {
+                    this.state.html5QrCode.stop().then(() => {
+                        this.state.html5QrCode.clear();
+                        this.resetScannerUI();
+                    }).catch(err => {
+                        console.error("Failed to stop scanning", err);
+                        this.resetScannerUI();
+                    });
+                } else {
+                    this.resetScannerUI();
+                }
+            },
+
+            resetScannerUI() {
+                document.getElementById('reader-container').classList.add('hidden');
+                document.getElementById('btn-scan-qr').classList.remove('hidden');
+            },
+
+            loadProgress() {
+                const stored = localStorage.getItem('toeic_app_learned');
+                if (stored) {
+                    this.state.learnedWords = JSON.parse(stored);
+                } else {
+                    this.state.learnedWords = {};
+                    // Init empty arrays for topics
+                    this.data.forEach(t => { this.state.learnedWords[t.id] = [] });
+                }
+            },
+
+            saveProgress() {
+                localStorage.setItem('toeic_app_learned', JSON.stringify(this.state.learnedWords));
+                this.renderDashboard(); // Re-render to update progress bars
+            },
+
+            resetProgress() {
+                if(confirm('Bạn có chắc chắn muốn xóa toàn bộ tiến độ học?')) {
+                    localStorage.removeItem('toeic_app_learned');
+                    this.loadProgress();
+                    this.goHome();
+                }
+            },
+
+            // --- Navigation / View Switching ---
+            hideAllViews() {
+                document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
+            },
+
+            goHome() {
+                this.hideAllViews();
+                document.getElementById('view-dashboard').classList.remove('hidden');
+                this.renderDashboard();
+                this.state.currentTopicIndex = null;
+            },
+
+            selectTopic(index) {
+                this.state.currentTopicIndex = index;
+                const topic = this.data[index];
+                
+                // Update Action View Title
+                document.getElementById('action-topic-title').innerText = topic.title;
+                
+                this.hideAllViews();
+                document.getElementById('view-actions').classList.remove('hidden');
+            },
+
+            showActions() {
+                if (this.state.currentTopicIndex !== null) {
+                    this.selectTopic(this.state.currentTopicIndex);
+                } else {
+                    this.goHome();
+                }
+            },
+
+            // --- Dashboard Logic ---
+            renderDashboard() {
+                const container = document.getElementById('topic-list');
+                container.innerHTML = '';
+
+                this.data.forEach((topic, index) => {
+                    // Calculate progress
+                    const total = topic.words.length;
+                    const learnedInit = this.state.learnedWords[topic.id] || [];
+                    const learnedCount = learnedInit.length;
+                    const percent = Math.round((learnedCount / total) * 100);
+
+                    const el = document.createElement('div');
+                    el.className = 'bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition cursor-pointer border border-gray-100 group';
+                    el.onclick = () => this.selectTopic(index);
+                    
+                    el.innerHTML = `
+                        <div class="p-6">
+                            <div class="flex items-center mb-4">
+                                <div class="w-12 h-12 ${topic.color} bg-opacity-20 rounded-full flex items-center justify-center text-${topic.color.replace('bg-', '')} mr-4">
+                                    <i class="fa-solid ${topic.icon} text-xl text-white py-2 px-3 rounded-full ${topic.color}"></i>
+                                </div>
+                                <h3 class="font-bold text-xl text-gray-800 group-hover:text-brand-600 transition">${topic.title}</h3>
+                            </div>
+                            
+                            <div class="w-full bg-gray-200 rounded-full h-2.5 mb-2">
+                                <div class="bg-brand-600 h-2.5 rounded-full transition-all duration-1000" style="width: ${percent}%"></div>
+                            </div>
+                            <div class="flex justify-between text-xs text-gray-500 font-medium">
+                                <span>Tiến độ</span>
+                                <span>${learnedCount}/${total} từ (${percent}%)</span>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            },
+
+            // --- Flashcard Logic (Tinder Swipe) ---
+            startFlashcards() {
+                const topic = this.data[this.state.currentTopicIndex];
+                this.state.flashcardQueue = [...topic.words].sort(() => 0.5 - Math.random());
+                this.state.currentCardIndex = 0;
+
+                this.hideAllViews();
+                document.getElementById('view-flashcard').classList.remove('hidden');
+                document.getElementById('fc-complete-msg').classList.add('hidden');
+                
+                // Show Card & Controls
+                document.querySelector('.perspective-1000').classList.remove('hidden');
+                document.querySelector('.perspective-1000').nextElementSibling.classList.remove('hidden'); 
+
+                this.renderCard();
+                this.initSwipeListeners();
+            },
+
+            renderCard() {
+                const queue = this.state.flashcardQueue;
+                if (this.state.currentCardIndex >= queue.length) {
+                    // Finished
+                    document.querySelector('.perspective-1000').classList.add('hidden');
+                    document.querySelector('.perspective-1000').nextElementSibling.classList.add('hidden'); // Hide controls
+                    document.getElementById('fc-complete-msg').classList.remove('hidden');
+                    return;
+                }
+
+                const word = queue[this.state.currentCardIndex];
+                const cardInner = document.getElementById('flashcard-inner');
+                const cardEl = document.getElementById('flashcard-swipe');
+                
+                // Reset Styles
+                cardInner.classList.remove('rotate-y-180');
+                cardEl.style.transform = '';
+                cardEl.classList.remove('is-animating');
+                
+                // Hide Badges
+                document.getElementById('swipe-like').style.opacity = '0';
+                document.getElementById('swipe-nope').style.opacity = '0';
+
+                // Update content
+                document.getElementById('fc-front').innerText = word.en;
+                document.getElementById('fc-pronunciation').innerText = word.pron || '';
+                
+                // Back Side fields
+                document.getElementById('fc-back-en').innerText = word.en;
+                document.getElementById('fc-back-pron').innerText = word.pron || '';
+                document.getElementById('fc-back').innerText = word.vi;
+                
+                document.getElementById('fc-progress').innerText = `${this.state.currentCardIndex + 1}/${queue.length}`;
+            },
+
+            flipCard() {
+                document.getElementById('flashcard-inner').classList.toggle('rotate-y-180');
+            },
+            
+            resetCardPosition() {
+                 const cardEl = document.getElementById('flashcard-swipe');
+                 cardEl.classList.add('is-animating');
+                 cardEl.style.transform = 'translate(0px, 0px) rotate(0deg)';
+                 document.getElementById('swipe-like').style.opacity = '0';
+                 document.getElementById('swipe-nope').style.opacity = '0';
+            },
+
+            markCard(isLearned) {
+                const topicId = this.data[this.state.currentTopicIndex].id;
+                const currentWord = this.state.flashcardQueue[this.state.currentCardIndex];
+                const learnedList = this.state.learnedWords[topicId] || [];
+
+                if (isLearned) {
+                    if (!learnedList.includes(currentWord.en)) {
+                        learnedList.push(currentWord.en);
+                        this.state.learnedWords[topicId] = learnedList;
+                        this.saveProgress();
+                    }
+                } 
+                
+                // Wait for animation to finish before rendering next
+                setTimeout(() => {
+                    this.state.currentCardIndex++;
+                    this.renderCard();
+                }, 300);
+            },
+
+            triggerSwipe(direction) {
+                const cardEl = document.getElementById('flashcard-swipe');
+                cardEl.classList.add('is-animating');
+                const screenWidth = window.innerWidth;
+                
+                if (direction === 'right') {
+                   cardEl.style.transform = `translate(${screenWidth + 100}px, 50px) rotate(30deg)`;
+                   this.markCard(true);
+                } else {
+                   cardEl.style.transform = `translate(-${screenWidth + 100}px, 50px) rotate(-30deg)`;
+                   this.markCard(false);
+                }
+            },
+
+            initSwipeListeners() {
+                const card = document.getElementById('flashcard-swipe');
+                if(card.dataset.listenerAdded) return;
+                
+                let startX, moveX, isDragging = false;
+
+                // Mouse Events
+                card.addEventListener('mousedown', (e) => {
+                    if(e.target.closest('button')) return; // Ignore if clicking play audio but we have event stopPropagation there
+                    isDragging = true;
+                    startX = e.clientX;
+                    card.classList.remove('is-animating');
+                });
+                
+                // Touch Events
+                card.addEventListener('touchstart', (e) => {
+                    if(e.target.closest('button')) return;
+                    isDragging = true;
+                    startX = e.touches[0].clientX;
+                    card.classList.remove('is-animating');
+                });
+
+                const handleMove = (x) => {
+                    if (!isDragging) return;
+                    moveX = x - startX;
+                    const rotate = moveX / 15;
+                    card.style.transform = `translate(${moveX}px, 0) rotate(${rotate}deg)`;
+
+                    // Show Hints
+                    if (moveX > 0) {
+                        document.getElementById('swipe-like').style.opacity = Math.min(moveX / 100, 1);
+                        document.getElementById('swipe-nope').style.opacity = 0;
+                    } else {
+                        document.getElementById('swipe-nope').style.opacity = Math.min(Math.abs(moveX) / 100, 1);
+                        document.getElementById('swipe-like').style.opacity = 0;
+                    }
+                };
+
+                const handleEnd = () => {
+                   if (!isDragging) return;
+                   isDragging = false;
+                   const threshold = 100;
+                   
+                   if (Math.abs(moveX) > threshold) {
+                       this.triggerSwipe(moveX > 0 ? 'right' : 'left');
+                   } else {
+                       this.resetCardPosition();
+                   }
+                   moveX = 0;
+                };
+
+                window.addEventListener('mousemove', (e) => handleMove(e.clientX));
+                window.addEventListener('touchmove', (e) => handleMove(e.touches[0].clientX));
+                window.addEventListener('mouseup', handleEnd);
+                window.addEventListener('touchend', handleEnd);
+                
+                card.dataset.listenerAdded = 'true';
+            },
+
+            playAudio() {
+                const word = this.state.flashcardQueue[this.state.currentCardIndex];
+                if (!word) return;
+                
+                const utterance = new SpeechSynthesisUtterance(word.en);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                speechSynthesis.speak(utterance);
+            },
+
+            // --- Quiz Logic ---
+            startQuiz() {
+                const topic = this.data[this.state.currentTopicIndex];
+                this.state.quizQueue = [...topic.words].sort(() => 0.5 - Math.random());
+                this.state.currentCardIndex = 0; // reusing generic index
+                this.state.quizScore = 0;
+
+                this.hideAllViews();
+                document.getElementById('view-quiz').classList.remove('hidden');
+                document.getElementById('quiz-container').classList.remove('hidden');
+                document.getElementById('quiz-result').classList.add('hidden');
+                document.getElementById('quiz-score').innerText = '0';
+
+                this.renderQuizQuestion();
+            },
+
+            renderQuizQuestion() {
+                const queue = this.state.quizQueue;
+                if (this.state.currentCardIndex >= queue.length) {
+                   this.finishQuiz();
+                   return;
+                }
+
+                const correctWord = queue[this.state.currentCardIndex];
+                const topic = this.data[this.state.currentTopicIndex];
+
+                // Pick 3 wrong answers
+                const allOtherWords = topic.words.filter(w => w.en !== correctWord.en);
+                const wrongOptions = allOtherWords.sort(() => 0.5 - Math.random()).slice(0, 3);
+                
+                let options = [...wrongOptions, correctWord];
+                options.sort(() => 0.5 - Math.random()); // Shuffle options
+
+                // Render UI
+                document.getElementById('quiz-question').innerText = correctWord.en;
+                document.getElementById('quiz-feedback').style.opacity = '0';
+                document.getElementById('quiz-next-btn').classList.add('hidden');
+
+                const optionInfo = document.getElementById('quiz-options');
+                optionInfo.innerHTML = '';
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = `w-full p-4 text-left border-2 border-gray-100 rounded-xl hover:bg-blue-50 hover:border-blue-200 transition font-medium text-gray-700`;
+                    btn.innerText = opt.vi;
+                    btn.onclick = (e) => this.handleQuizAnswer(opt.en, correctWord.en, e.target);
+                    optionInfo.appendChild(btn);
+                });
+            },
+
+            handleQuizAnswer(selectedEn, correctEn, btnElement) {
+                // Disable all buttons
+                const buttons = document.querySelectorAll('#quiz-options button');
+                buttons.forEach(btn => btn.disabled = true);
+
+                const feedback = document.getElementById('quiz-feedback');
+                feedback.style.opacity = '1';
+
+                if (selectedEn === correctEn) {
+                    btnElement.classList.add('bg-green-100', 'border-green-500', 'text-green-700');
+                    btnElement.innerHTML += ' <i class="fa-solid fa-check float-right mt-1"></i>';
+                    this.state.quizScore += 10;
+                    document.getElementById('quiz-score').innerText = this.state.quizScore;
+                    feedback.innerText = "Chính xác! 🎉";
+                    feedback.className = "mt-4 text-center h-8 font-bold text-lg text-green-600";
+                    // Audio feedback
+                    const utterance = new SpeechSynthesisUtterance("Correct");
+                    utterance.lang = 'en-US';
+                    speechSynthesis.speak(utterance);
+                } else {
+                    btnElement.classList.add('bg-red-100', 'border-red-500', 'text-red-700');
+                    // Find correct one to highlight
+                    buttons.forEach(btn => {
+                        if(btn.innerText.includes(this.data[this.state.currentTopicIndex].words.find(w => w.en === correctEn).vi)) {
+                            btn.classList.add('bg-green-50', 'border-green-300');
+                        }
+                    });
+                    feedback.innerText = "Sai rồi! 😢";
+                    feedback.className = "mt-4 text-center h-8 font-bold text-lg text-red-600";
+                }
+
+                document.getElementById('quiz-next-btn').classList.remove('hidden');
+            },
+
+            nextQuiz() {
+                this.state.currentCardIndex++;
+                this.renderQuizQuestion();
+            },
+
+            finishQuiz() {
+                document.getElementById('quiz-container').classList.add('hidden');
+                document.getElementById('quiz-result').classList.remove('hidden');
+                document.getElementById('quiz-final-score').innerText = this.state.quizScore + " Points";
+            },
+
+            // --- Game Logic ---
+            startGame() {
+                const topic = this.data[this.state.currentTopicIndex];
+                const dataset = [...topic.words].sort(() => 0.5 - Math.random()).slice(0, 6);
+                
+                let deck = [];
+                dataset.forEach(w => {
+                    deck.push({ id: w.en, content: w.en, type: 'en' });
+                    deck.push({ id: w.en, content: w.vi, type: 'vi' });
+                });
+                
+                this.state.gameCards = deck.sort(() => 0.5 - Math.random());
+                this.state.gameSelected = [];
+                this.state.gameMatches = 0;
+                
+                this.hideAllViews();
+                document.getElementById('view-game').classList.remove('hidden');
+                document.getElementById('game-win').classList.add('hidden');
+                document.getElementById('game-left').innerText = dataset.length;
+
+                this.renderGameGrid();
+            },
+
+            renderGameGrid() {
+                const grid = document.getElementById('game-grid');
+                grid.innerHTML = '';
+                
+                this.state.gameCards.forEach((card, idx) => {
+                    const el = document.createElement('div');
+                    // "game-card" is the container. 
+                    // "h-24 sm:h-32" ensures responsiveness.
+                    el.className = `game-card relative h-24 sm:h-32 cursor-pointer select-none perspective-1000`;
+                    el.dataset.idx = idx;
+                    el.onclick = () => this.handleCardClick(idx, el);
+                    
+                    // 3D Inner Container
+                    el.innerHTML = `
+                        <div class="game-card-inner w-full h-full relative shadow-sm rounded-xl border-2 border-brand-100 bg-white hover:shadow-md transition">
+                            <!-- Front (Face Down) -->
+                            <div class="front absolute w-full h-full backface-hidden flex items-center justify-center rounded-xl bg-white">
+                                <i class="fa-solid fa-question text-brand-200 text-2xl"></i>
+                            </div>
+                            <!-- Back (Face Up) -->
+                            <div class="back absolute w-full h-full backface-hidden rotate-y-180 flex items-center justify-center rounded-xl bg-brand-50 border-2 border-brand-500 px-2 text-center overflow-hidden">
+                                <span class="font-bold text-brand-700 text-xs sm:text-sm break-words leading-tight">${card.content}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    grid.appendChild(el);
+                });
+            },
+
+            handleCardClick(idx, element) {
+                // Ignore if matched, already flipped, or 2 cards already active
+                if (element.classList.contains('matched') || 
+                    element.classList.contains('flipped') ||
+                    this.state.gameSelected.length === 2) return;
+
+                const cardData = this.state.gameCards[idx];
+
+                // Flip it
+                element.classList.add('flipped');
+                
+                this.state.gameSelected.push({ idx, id: cardData.id, el: element });
+
+                if (this.state.gameSelected.length === 2) {
+                    this.checkMatch();
+                }
+            },
+
+            checkMatch() {
+                const [first, second] = this.state.gameSelected;
+                
+                if (first.id === second.id) {
+                    // Macth!
+                    this.state.gameMatches++;
+                    document.getElementById('game-left').innerText = (this.state.gameCards.length / 2) - this.state.gameMatches;
+                    
+                    setTimeout(() => {
+                        // Mark as matched (pop out effect)
+                        first.el.classList.add('matched');
+                        second.el.classList.add('matched');
+                        
+                        // Check Win
+                        if (this.state.gameMatches === this.state.gameCards.length / 2) {
+                            document.getElementById('game-win').classList.remove('hidden');
+                        }
+                    }, 600);
+                    
+                    this.state.gameSelected = [];
+                } else {
+                    // No match
+                    setTimeout(() => {
+                        // Flip back
+                        first.el.classList.remove('flipped');
+                        second.el.classList.remove('flipped');
+                        this.state.gameSelected = [];
+                    }, 1000);
+                }
+            }
+        };
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+    </script>
+</body>
+</html>
