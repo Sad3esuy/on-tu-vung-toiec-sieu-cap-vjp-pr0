@@ -338,12 +338,18 @@
             </div>
 
             <!-- Controls (Bottom Buttons) -->
-            <div class="flex gap-6 mt-6 sm:mt-8 w-full max-w-xs justify-center z-30">
-                <button onclick="app.triggerSwipe('left')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-red-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-red-50 transition flex items-center justify-center text-2xl">
-                    <i class="fa-solid fa-xmark"></i>
+            <div class="flex gap-4 mt-6 sm:mt-8 w-full max-w-sm justify-center z-30 px-4">
+                <button onclick="app.triggerSwipe('left')" class="flex-1 py-4 bg-white text-red-500 rounded-2xl shadow-lg border border-red-100 hover:scale-105 hover:bg-red-50 transition flex items-center justify-center font-bold text-lg group">
+                    <div class="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mr-2 group-hover:bg-red-200 transition">
+                        <i class="fa-solid fa-xmark"></i>
+                    </div> 
+                    Chưa thuộc
                 </button>
-                <button onclick="app.triggerSwipe('right')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-green-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-green-50 transition flex items-center justify-center text-2xl">
-                    <i class="fa-solid fa-heart"></i>
+                <button onclick="app.triggerSwipe('right')" class="flex-1 py-4 bg-white text-green-500 rounded-2xl shadow-lg border border-green-100 hover:scale-105 hover:bg-green-50 transition flex items-center justify-center font-bold text-lg group">
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mr-2 group-hover:bg-green-200 transition">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    Đã thuộc
                 </button>
             </div>
 
@@ -3612,11 +3618,22 @@
 
                 // Update content
                 document.getElementById('fc-front').innerText = word.en;
-                document.getElementById('fc-pronunciation').innerText = word.pron || '';
+                
+                const pronEl = document.getElementById('fc-pronunciation');
+                const backPronEl = document.getElementById('fc-back-pron');
+                
+                if (word.pron && word.pron.trim() !== "") {
+                    pronEl.innerText = word.pron;
+                    pronEl.classList.remove('hidden');
+                    backPronEl.innerText = word.pron;
+                    backPronEl.classList.remove('hidden');
+                } else {
+                    pronEl.classList.add('hidden');
+                    backPronEl.classList.add('hidden');
+                }
                 
                 // Back Side fields
                 document.getElementById('fc-back-en').innerText = word.en;
-                document.getElementById('fc-back-pron').innerText = word.pron || '';
                 document.getElementById('fc-back').innerText = word.vi;
                 
                 document.getElementById('fc-progress').innerText = `${this.state.currentCardIndex + 1}/${queue.length}`;
