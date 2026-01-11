@@ -12,7 +12,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- QR Code Scanner Library -->
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js" type="text/javascript"></script>
+    
+    <!-- Alternative QR Library for file scanning -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
     <!-- Tailwind Config for Custom Colors -->
     <script>
@@ -190,7 +193,7 @@
                         <i class="fa-solid fa-camera mr-2"></i> Quét Camera
                     </button>
                     
-                    <button onclick="document.getElementById('qr-input-file').click()" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
+                    <button id="btn-upload-qr" onclick="document.getElementById('qr-input-file').click()" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
                         <i class="fa-solid fa-image mr-2"></i> Tải ảnh QR
                     </button>
                     <input type="file" id="qr-input-file" class="hidden" accept="image/*" onchange="app.handleQrFile(this)">

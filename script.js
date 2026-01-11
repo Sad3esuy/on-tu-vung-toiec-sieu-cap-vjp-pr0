@@ -2675,7 +2675,13 @@
         const app = {
             data: vocabularyData,
             config: {
-                correctCode: "NAPCARD20KTHAGAONTOIEC"
+                correctCode: "NAPCARD20KTHAGAONTOIEC",
+                // Danh sách các mã code hợp lệ (bao gồm cả link QR user đang dùng)
+                validCodes: [
+                    "NAPCARD20KTHAGAONTOIEC",
+                    "https://q.me-qr.com/mornqf4g",
+                    "https://get-qr.com/umGK7G"
+                ]
             },
             state: {
                 isLoggedIn: false,
@@ -2736,11 +2742,17 @@
             // --- QR Scanner ---
             startScanner() {
                 document.getElementById('reader-container').classList.remove('hidden');
-                // Hide buttons area while scanning if desired, or just manage state
+                document.getElementById('btn-scan-qr').classList.add('hidden'); 
                 
                 if (!this.state.html5QrCode) {
-                    this.state.html5QrCode = new Html5Qrcode("reader");
+                    try {
+                        this.state.html5QrCode = new Html5Qrcode("reader");
+                    } catch (e) {
+                        console.error("Init Error", e);
+                    }
                 }
+
+                if (this.state.html5QrCode && this.state.html5QrCode.isScanning) return;
 
                 const qrCodeSuccessCallback = (decodedText, decodedResult) => {
                     this.verifyCode(decodedText);
@@ -2756,45 +2768,181 @@
                 });
             },
 
-            handleQrFile(input) {
+            async handleQrFile(input) {
                 if (input.files.length === 0) return;
-                
                 const imageFile = input.files[0];
-                const html5QrCode = new Html5Qrcode("reader");
-                
-                // Show loading state if needed
-                
-                html5QrCode.scanFile(imageFile, true)
-                .then(decodedText => {
+
+                // Kiểm tra loại file
+                const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+                if (!allowedTypes.includes(imageFile.type)) {
+                    alert('Chỉ chấp nhận file ảnh có định dạng: JPEG, PNG, GIF, WebP');
+                    input.value = '';
+                    return;
+                }
+
+                // Kiểm tra kích thước file (max 10MB)
+                const maxSize = 10 * 1024 * 1024; // 10MB
+                if (imageFile.size > maxSize) {
+                    alert('Kích thước file quá lớn. Vui lòng chọn file dưới 10MB.');
+                    input.value = '';
+                    return;
+                }
+
+                // Disable button và hiển thị loading
+                const uploadBtn = document.getElementById('btn-upload-qr');
+                const originalText = uploadBtn.innerHTML;
+                uploadBtn.disabled = true;
+                uploadBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Đang xử lý...';
+
+                // 1. Dọn dẹp scanner cũ (nếu có)
+                if (this.state.html5QrCode) {
+                    try {
+                        if (this.state.html5QrCode.isScanning) {
+                            await this.state.html5QrCode.stop();
+                        }
+                        this.state.html5QrCode.clear();
+                    } catch (e) {
+                        // ignore error
+                    }
+                    this.state.html5QrCode = null;
+                }
+
+                try {
+                    // 2. Thử scan bằng jsQR trước (tốt hơn cho file)
+                    let decodedText;
+                    try {
+                        decodedText = await this.scanQrFromFile(imageFile);
+                    } catch (jsQrError) {
+                        console.warn('jsQR failed, trying html5-qrcode:', jsQrError);
+                        // Fallback to html5-qrcode
+                        const hiddenDiv = document.createElement('div');
+                        hiddenDiv.style.display = 'none';
+                        document.body.appendChild(hiddenDiv);
+                        
+                        const html5QrCode = new Html5Qrcode(hiddenDiv);
+                        decodedText = await html5QrCode.scanFile(imageFile, false);
+                        html5QrCode.clear();
+                        document.body.removeChild(hiddenDiv);
+                    }
+                    
                     this.verifyCode(decodedText);
-                })
-                .catch(err => {
-                    alert('Không tìm thấy mã QR trong ảnh này. Vui lòng thử ảnh khác.');
-                    console.error("Error scanning file", err);
+                } catch (err) {
+                    console.error("File Scan Error:", err);
+                    
+                    let errorMsg = "Không tìm thấy mã QR trong ảnh.";
+                    if (err?.toString().includes("No MultiFormat Readers") || err?.toString().includes("No QR code found")) {
+                        errorMsg = "Không thể giải mã QR từ ảnh này.";
+                    } else if (err?.toString().includes("Failed to load image") || err?.toString().includes("Failed to read file")) {
+                        errorMsg = "Không thể đọc file ảnh. Vui lòng thử lại.";
+                    }
+
+                    alert(`${errorMsg}\n\nGợi ý:\n1. Ảnh quá mờ hoặc bị vỡ hạt -> Hãy dùng ảnh gốc rõ nét.\n2. Ảnh chứa quá nhiều chi tiết thừa -> Hãy cắt (crop) sát vào mã QR.\n3. Đảm bảo ảnh có định dạng hỗ trợ (PNG, JPG, JPEG).\n4. Kiểm tra xem mã QR có bị hỏng hoặc quá nhỏ không.\n5. Thử dùng ảnh có độ phân giải cao hơn.`);
+                } finally {
+                    input.value = ''; // Reset input
+                    // Khôi phục button
+                    uploadBtn.disabled = false;
+                    uploadBtn.innerHTML = originalText;
+                }
+            },
+
+            // Hàm scan QR từ file sử dụng jsQR
+            async scanQrFromFile(file) {
+                return new Promise((resolve, reject) => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const img = new Image();
+                    
+                    img.onload = () => {
+                        try {
+                            // Resize canvas to image size
+                            canvas.width = img.width;
+                            canvas.height = img.height;
+                            
+                            // Draw image to canvas
+                            ctx.drawImage(img, 0, 0);
+                            
+                            // Get image data
+                            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                            
+                            // Scan QR code
+                            const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                                inversionAttempts: "dontInvert",
+                            });
+                            
+                            if (code && code.data) {
+                                console.log('QR Code found:', code.data);
+                                resolve(code.data);
+                            } else {
+                                reject(new Error('No QR code found in image'));
+                            }
+                        } catch (error) {
+                            console.error('Error processing image:', error);
+                            reject(error);
+                        }
+                    };
+                    
+                    img.onerror = (error) => {
+                        console.error('Image load error:', error);
+                        reject(new Error('Failed to load image'));
+                    };
+                    
+                    // Load image from file
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        img.src = e.target.result;
+                    };
+                    reader.onerror = (error) => {
+                        console.error('File read error:', error);
+                        reject(new Error('Failed to read file'));
+                    };
+                    reader.readAsDataURL(file);
                 });
             },
 
             verifyCode(code) {
-                if (code === this.config.correctCode) {
+                // Kiểm tra code có trong danh sách hợp lệ hoặc khớp mã gốc không
+                const isValid = (this.config.validCodes && this.config.validCodes.includes(code)) 
+                             || code === this.config.correctCode;
+
+                if (isValid) {
+                    const cleanupAndLogin = () => {
+                        try {
+                            if (this.state.html5QrCode) {
+                                this.state.html5QrCode.clear(); 
+                            }
+                        } catch(e) {}
+                        this.completeLogin();
+                    };
+
                     if (this.state.html5QrCode && this.state.html5QrCode.isScanning) {
-                         this.state.html5QrCode.stop().then(() => this.completeLogin());
+                         this.state.html5QrCode.stop()
+                             .then(cleanupAndLogin)
+                             .catch(cleanupAndLogin);
                     } else {
-                         this.completeLogin();
+                         cleanupAndLogin();
                     }
                 } else {
-                    alert("Mã QR không hợp lệ!");
+                    alert(`Mã QR đã quét được: "${code}"\nNhưng mã này không đúng với hệ thống!`);
                 }
             },
 
             stopScanner() {
-                if (this.state.html5QrCode && this.state.html5QrCode.isScanning) {
-                    this.state.html5QrCode.stop().then(() => {
-                        this.state.html5QrCode.clear();
+                if (this.state.html5QrCode) {
+                    const cleanup = () => {
+                        try { this.state.html5QrCode.clear(); } catch(e){}
                         this.resetScannerUI();
-                    }).catch(err => {
-                        console.error("Failed to stop scanning", err);
-                        this.resetScannerUI();
-                    });
+                    };
+
+                    if (this.state.html5QrCode.isScanning) {
+                        this.state.html5QrCode.stop()
+                            .then(cleanup)
+                            .catch((err) => {
+                                console.error("Failed to stop scanning", err);
+                                cleanup();
+                            });
+                    } else {
+                        cleanup();
+                    }
                 } else {
                     this.resetScannerUI();
                 }

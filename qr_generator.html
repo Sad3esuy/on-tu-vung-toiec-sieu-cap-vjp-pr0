@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo QR Code Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .qr-container {
+            margin: 20px auto;
+            display: inline-block;
+            border: 2px solid #333;
+            padding: 10px;
+            background: white;
+        }
+        .code-list {
+            text-align: left;
+            margin: 20px auto;
+            max-width: 400px;
+        }
+        .code-item {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tạo QR Code để Test</h1>
+    <p>Chọn một mã code hợp lệ để tạo QR code:</p>
+
+    <div class="code-list">
+        <div class="code-item">
+            <strong>NAPCARD20KTHAGAONTOIEC</strong><br>
+            <small>Mã code chính</small><br>
+            <button onclick="generateQR('NAPCARD20KTHAGAONTOIEC')">Tạo QR</button>
+        </div>
+
+        <div class="code-item">
+            <strong>https://q.me-qr.com/mornqf4g</strong><br>
+            <small>Link QR 1</small><br>
+            <button onclick="generateQR('https://q.me-qr.com/mornqf4g')">Tạo QR</button>
+        </div>
+
+        <div class="code-item">
+            <strong>https://get-qr.com/umGK7G</strong><br>
+            <small>Link QR 2</small><br>
+            <button onclick="generateQR('https://get-qr.com/umGK7G')">Tạo QR</button>
+        </div>
+    </div>
+
+    <div id="qr-container" class="qr-container" style="display: none;">
+        <h3>QR Code:</h3>
+        <div id="qrcode"></div>
+        <br>
+        <button onclick="downloadQR()">Tải xuống PNG</button>
+        <button onclick="hideQR()">Ẩn QR</button>
+    </div>
+
+    <script>
+        let currentQRData = '';
+
+        function generateQR(text) {
+            currentQRData = text;
+            const container = document.getElementById('qr-container');
+            const qrElement = document.getElementById('qrcode');
+
+            // Clear previous QR
+            qrElement.innerHTML = '';
+
+            try {
+                // Generate QR code using qrcode-generator
+                const qr = qrcode(0, 'M'); // Type 0, Error correction level M
+                qr.addData(text);
+                qr.make();
+
+                // Create table for QR code
+                const size = qr.getModuleCount();
+                let html = '<table border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">';
+
+                for (let row = 0; row < size; row++) {
+                    html += '<tr>';
+                    for (let col = 0; col < size; col++) {
+                        const isBlack = qr.isDark(row, col);
+                        const color = isBlack ? '#000000' : '#FFFFFF';
+                        html += `<td style="width: 4px; height: 4px; background-color: ${color};"></td>`;
+                    }
+                    html += '</tr>';
+                }
+                html += '</table>';
+
+                qrElement.innerHTML = html;
+                container.style.display = 'block';
+                container.scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Error generating QR:', error);
+                alert('Lỗi tạo QR code: ' + error.message);
+            }
+        }
+
+        function downloadQR() {
+            const qrTable = document.querySelector('#qrcode table');
+            if (qrTable) {
+                html2canvas(qrTable, {
+                    backgroundColor: '#FFFFFF',
+                    scale: 2 // Higher resolution
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = 'qr-code-test.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                }).catch(error => {
+                    console.error('Error creating image:', error);
+                    alert('Lỗi tạo hình ảnh. Vui lòng chụp màn hình thay thế.');
+                });
+            } else {
+                alert('Không tìm thấy QR code để tải xuống.');
+            }
+        }
+
+        function hideQR() {
+            document.getElementById('qr-container').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
