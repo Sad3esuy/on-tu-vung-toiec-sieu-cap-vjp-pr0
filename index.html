@@ -226,7 +226,7 @@
                 </select>
             </div>
 
-            <div id="topic-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="topic-list" class="grid grid-cols-2 md:grid-cols-2 gap-6">
                 <!-- Topics will be injected here via JS -->
             </div>
         </section>
@@ -3546,13 +3546,13 @@
                     el.onclick = () => this.selectTopic(originalIndex);
                     
                     el.innerHTML = `
-                        <div class="p-6">
-                            <div class="flex items-center mb-4">
-                                <div class="w-12 h-12 ${topic.color} bg-opacity-20 rounded-full flex items-center justify-center text-${topic.color.replace('bg-', '')} mr-4">
-                                    <i class="fa-solid ${topic.icon} text-xl text-white py-2 px-3 rounded-full ${topic.color}"></i>
+                        <div class="p-4 md:p-6">
+                            <div class="flex items-center mb-3 md:mb-4">
+                                <div class="w-10 h-10 md:w-12 md:h-12 ${topic.color} bg-opacity-20 rounded-full flex items-center justify-center text-${topic.color.replace('bg-', '')} mr-3 md:mr-4">
+                                    <i class="fa-solid ${topic.icon} text-lg md:text-xl text-white py-1.5 px-2 md:py-2 md:px-3 rounded-full ${topic.color}"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-xl text-gray-800 group-hover:text-brand-600 transition dark:text-gray-200">${topic.title}</h3>
+                                    <h3 class="font-bold text-base md:text-xl text-gray-800 group-hover:text-brand-600 transition dark:text-gray-200">${topic.title}</h3>
                                     <span class="text-xs font-semibold px-2 py-0.5 rounded bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-gray-400">${topic.source}</span>
                                 </div>
                             </div>
