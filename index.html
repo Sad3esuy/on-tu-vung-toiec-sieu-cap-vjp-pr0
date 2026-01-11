@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOEIC Vocabulary Siêu Cấp Vjp Pr0</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- QR Code Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb', // Primary Blue
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles for 3D Flip Card not built-in to default Tailwind */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        
+        .backface-hidden {
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden; 
+        }
+        
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+
+        /* Tinder Swipe Styles */
+        .swipe-card {
+            cursor: grab;
+            transition: transform 0.1s;
+            touch-action: none; /* Prevent scrolling while swiping */
+            user-select: none;
+        }
+        .swipe-card.is-animating {
+            transition: transform 0.5s ease-in-out;
+        }
+        .swipe-card:active {
+            cursor: grabbing;
+        }
+
+        /* Memory Game 3D Flip */
+        .game-card-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .game-card.flipped .game-card-inner {
+            transform: rotateY(180deg);
+        }
+        /* Matched card animation */
+        .game-card.matched {
+            animation: matchSuccess 0.6s forwards;
+        }
+        @keyframes matchSuccess {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        /* Hide scrollbar for clean UI */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Mobile Menu Styles */
+        #mobile-menu {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-matched {
+            animation: popOut 0.5s forwards;
+        }
+
+        @keyframes popOut {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="app.goHome()">
+                    <i class="fa-solid fa-graduation-cap text-3xl text-brand-600 mr-2"></i>
+                    <span class="font-bold text-xl tracking-tight text-gray-800">TOEIC<span class="text-brand-600">SieuCapVjpPr0</span></span>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden">
+                    <button onclick="app.toggleMobileMenu()" class="text-gray-600 hover:text-gray-800 p-2">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex space-x-4">
+                    <button onclick="app.goHome()" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md font-medium transition">Dashboard</button>
+                    <button onclick="app.resetProgress()" class="text-red-500 hover:text-red-700 px-3 py-2 text-sm rounded-md transition"><i class="fa-solid fa-trash-can mr-1"></i> Reset Data</button>
+                </div>
+
+                <!-- Mobile Menu Dropdown -->
+                <div id="mobile-menu" class="hidden md:hidden absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                    <button onclick="app.goHome(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-600 hover:text-brand-600 hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-home mr-2"></i>Dashboard
+                    </button>
+                    <button onclick="app.resetProgress(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 transition">
+                        <i class="fa-solid fa-trash-can mr-2"></i>Reset Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Container -->
+    <main id="app-container" class="flex-grow max-w-4xl mx-auto w-full p-4 relative">
+        
+        <!-- LOGIN VIEW -->
+        <section id="view-login" class="fade-in max-w-md mx-auto pt-10 text-center">
+            <div class="mb-8">
+                <i class="fa-solid fa-graduation-cap text-6xl text-brand-600 mb-4"></i>
+                <h1 class="text-3xl font-bold text-gray-800">TOEIC Siêu Cấp Vjp Pr0</h1>
+                <p class="text-gray-500">Vui lòng đăng nhập để tiếp tục</p>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-lg border border-gray-100">
+                <div class="mb-4 text-left">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Nhập mã tân thủ hoặc Nạp card 20k để mạnh hơn😘</label>
+                    <input type="text" id="access-code" class="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-brand-500 outline-none transition uppercase" placeholder="Nhập mã code...">
+                </div>
+                
+                <button onclick="app.handleLogin()" class="w-full bg-brand-600 text-white font-bold py-3 px-4 rounded-xl hover:bg-brand-700 transition mb-4 shadow-lg shadow-brand-200">
+                    Bắt đầu học
+                </button>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-gray-300"></div>
+                    <span class="flex-shrink mx-4 text-gray-400 text-sm">Hoặc</span>
+                    <div class="flex-grow border-t border-gray-300"></div>
+                </div>
+
+                <div id="reader-container" class="hidden my-4 overflow-hidden rounded-lg">
+                    <div id="reader" style="width: 100%"></div>
+                    <button onclick="app.stopScanner()" class="mt-2 text-red-500 text-sm underline">Đóng Camera</button>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-4">
+                    <button onclick="app.startScanner()" id="btn-scan-qr" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-camera mr-2"></i> Quét Camera
+                    </button>
+                    
+                    <button onclick="document.getElementById('qr-input-file').click()" class="bg-gray-100 text-gray-700 font-bold py-3 px-2 rounded-xl hover:bg-gray-200 transition flex items-center justify-center text-sm">
+                        <i class="fa-solid fa-image mr-2"></i> Tải ảnh QR
+                    </button>
+                    <input type="file" id="qr-input-file" class="hidden" accept="image/*" onchange="app.handleQrFile(this)">
+                </div>
+            </div>
+            <p class="text-gray-400 text-xs mt-6">Code mẫu: NAPCARD20KTHAGAONTOIEC</p>
+        </section>
+
+        <!-- DASHBOARD VIEW -->
+        <section id="view-dashboard" class="hidden fade-in space-y-6">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-brand-900">Chọn chủ đề để học</h1>
+                <p class="text-gray-500 mt-2">Nâng cao vốn từ vựng TOEIC mỗi ngày</p>
+            </div>
+
+            <div id="topic-list" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Topics will be injected here via JS -->
+            </div>
+        </section>
+
+        <!-- TOPIC ACTION SELECTOR (Popup Modal-like view) -->
+        <section id="view-actions" class="hidden fade-in text-center pt-10">
+            <button onclick="app.goHome()" class="absolute top-5 left-5 text-gray-500 hover:text-brand-600"><i class="fa-solid fa-arrow-left mr-1"></i> Quay lại</button>
+            
+            <h2 id="action-topic-title" class="text-2xl font-bold text-brand-800 mb-8">Topic Title</h2>
+            
+            <div class="grid grid-cols-1 gap-4 max-w-md mx-auto">
+                <button onclick="app.startFlashcards()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-brand-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-brand-700 group-hover:text-brand-500">Flashcards</h3>
+                        <p class="text-sm text-gray-500">Học từ mới qua thẻ lật</p>
+                    </div>
+                    <div class="w-12 h-12 bg-brand-100 rounded-full flex items-center justify-center text-brand-600 text-xl group-hover:bg-brand-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-layer-group"></i>
+                    </div>
+                </button>
+
+                <button onclick="app.startQuiz()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-green-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-green-700 group-hover:text-green-500">Quiz Test</h3>
+                        <p class="text-sm text-gray-500">Kiểm tra trắc nghiệm nhanh</p>
+                    </div>
+                    <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 text-xl group-hover:bg-green-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-clipboard-question"></i>
+                    </div>
+                </button>
+
+                <button onclick="app.startGame()" class="flex items-center justify-between p-6 bg-white rounded-xl shadow-lg hover:shadow-xl hover:border-purple-500 border-2 border-transparent transition group cursor-pointer text-left">
+                    <div>
+                        <h3 class="font-bold text-lg text-purple-700 group-hover:text-purple-500">Memory Game</h3>
+                        <p class="text-sm text-gray-500">Ghép thẻ từ vựng và nghĩa</p>
+                    </div>
+                    <div class="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-xl group-hover:bg-purple-600 group-hover:text-white transition">
+                        <i class="fa-solid fa-puzzle-piece"></i>
+                    </div>
+                </button>
+            </div>
+        </section>
+
+        <!-- FLASHCARD MODE (Tinder Swipe) -->
+        <section id="view-flashcard" class="hidden fade-in h-[600px] sm:min-h-[80vh] flex flex-col items-center relative pt-4">
+            <!-- Header Controls -->
+            <div class="w-full flex justify-between items-center mb-4 max-w-sm px-4">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600 p-2"><i class="fa-solid fa-times text-2xl"></i></button>
+                <div class="text-gray-500 font-bold bg-white px-3 py-1 rounded-full shadow-sm text-sm"><span id="fc-progress">1/10</span></div>
+                <button onclick="app.resetCardPosition()" class="text-yellow-500 hover:text-yellow-600 p-2"><i class="fa-solid fa-undo text-xl"></i></button>
+            </div>
+
+            <!-- Swipe Container -->
+            <div class="relative w-full max-w-sm h-[600px] sm:h-[650px] flex justify-center items-center perspective-1000">
+                
+                <!-- Background Decoration (Stack effect) -->
+                <div class="absolute w-[90%] h-[90%] bg-white rounded-2xl shadow-sm transform translate-y-4 scale-95 opacity-50 z-0"></div>
+                <div class="absolute w-[95%] h-[95%] bg-white rounded-2xl shadow-md transform translate-y-2 scale-98 opacity-70 z-10"></div>
+
+                <!-- Active Card -->
+                <div id="flashcard-swipe" class="swipe-card absolute w-full h-full z-20 cursor-grab transform-style-3d bg-transparent">
+                    <div id="flashcard-inner" class="relative w-full h-full transition-transform duration-500 transform-style-3d shadow-xl rounded-2xl cursor-pointer" onclick="app.flipCard()">
+                        
+                        <!-- Front -->
+                        <div class="absolute w-full h-full bg-white rounded-2xl backface-hidden flex flex-col items-center justify-center border border-gray-100 p-6 select-none">
+                            <span class="text-gray-300 text-xs font-bold uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-full mb-6">Vocabulary</span>
+                            <h2 id="fc-front" class="text-4xl sm:text-5xl font-bold text-gray-800 text-center break-words max-w-full">Vocabulary</h2>
+                            <p id="fc-pronunciation" class="text-brand-500 mt-3 font-mono text-lg font-medium bg-blue-50 px-3 py-1 rounded-lg">/pronunciation/</p>
+                            
+                            <!-- Swipe Hints Overlay -->
+                            <div id="swipe-nope" class="absolute top-8 right-8 border-4 border-red-500 rounded px-2 py-1 transform rotate-12 opacity-0 transition-opacity pointer-events-none">
+                                <span class="text-red-500 font-extrabold text-2xl uppercase tracking-wider">HỌC LẠI</span>
+                            </div>
+                            <div id="swipe-like" class="absolute top-8 left-8 border-4 border-green-500 rounded px-2 py-1 transform -rotate-12 opacity-0 transition-opacity pointer-events-none">
+                                <span class="text-green-500 font-extrabold text-2xl uppercase tracking-wider">ĐÃ THUỘC</span>
+                            </div>
+
+                            <p class="absolute bottom-6 text-gray-300 text-sm animate-pulse flex items-center">
+                                <i class="fa-solid fa-hand-pointer mr-2"></i> Chạm để lật
+                            </p>
+                        </div>
+                        
+                        <div class="absolute w-full h-full bg-slate-800 text-white rounded-2xl backface-hidden rotate-y-180 flex flex-col items-center justify-center p-6 border border-slate-600 select-none">
+                            <!-- New Layout: Vocab -> Meaning -->
+                            <h2 id="fc-back-en" class="text-3xl font-bold text-brand-300 mb-1">Vocabulary</h2>
+                            <p id="fc-back-pron" class="text-gray-400 font-mono text-sm mb-6">/pronunciation/</p>
+                            
+                            <div class="w-16 h-1 bg-gray-600 rounded mb-6"></div>
+
+                            <span class="text-gray-400 text-xs font-bold uppercase tracking-widest mb-2">Meaning</span>
+                            <h2 id="fc-back" class="text-2xl sm:text-3xl font-bold text-center break-words leading-tight mb-4 text-white">Nghĩa tiếng Việt</h2>
+                            
+                            <button onclick="event.stopPropagation(); app.playAudio()" class="w-14 h-14 bg-brand-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-110 hover:bg-brand-500 transition active:scale-95">
+                                <i class="fa-solid fa-volume-high text-2xl"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls (Bottom Buttons) -->
+            <div class="flex gap-6 mt-6 sm:mt-8 w-full max-w-xs justify-center z-30">
+                <button onclick="app.triggerSwipe('left')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-red-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-red-50 transition flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <button onclick="app.triggerSwipe('right')" class="w-14 h-14 sm:w-16 sm:h-16 bg-white text-green-500 rounded-full shadow-lg border border-gray-100 hover:scale-110 hover:bg-green-50 transition flex items-center justify-center text-2xl">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+            </div>
+
+            <div id="fc-complete-msg" class="hidden absolute inset-0 bg-white z-50 flex flex-col items-center justify-center text-center p-6 rounded-3xl">
+                <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce">
+                    <i class="fa-solid fa-check text-4xl text-green-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">Tuyệt vời!</h2>
+                <p class="text-gray-500 mb-8">Bạn đã hoàn thành các thẻ trong chủ đề này.</p>
+                <button onclick="app.goHome()" class="px-8 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-lg hover:bg-brand-700 hover:shadow-xl transition transform hover:-translate-y-1">
+                    Về trang chủ
+                </button>
+            </div>
+        </section>
+
+        <!-- QUIZ MODE (Keep as is, just ensure responsive padding) -->
+        <section id="view-quiz" class="hidden fade-in max-w-lg mx-auto pt-4 px-2">
+            <div class="flex justify-between items-center mb-6">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-arrow-left"></i> Thoát</button>
+                <div class="font-bold text-brand-600">Điểm: <span id="quiz-score">0</span></div>
+            </div>
+
+            <div id="quiz-container">
+                <div class="bg-white p-8 rounded-2xl shadow-lg border-t-4 border-brand-500 mb-6 text-center">
+                    <p class="text-gray-500 uppercase text-xs font-bold mb-2">Chọn nghĩa đúng của từ:</p>
+                    <h2 id="quiz-question" class="text-3xl font-bold text-brand-800">Question Word</h2>
+                </div>
+
+                <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                    <!-- Buttons injected via JS -->
+                </div>
+                
+                <div id="quiz-feedback" class="mt-4 text-center h-8 font-bold text-lg transition-all opacity-0"></div>
+                
+                <button id="quiz-next-btn" onclick="app.nextQuiz()" class="w-full mt-6 py-3 bg-brand-600 text-white rounded-xl font-bold shadow-lg hover:bg-brand-700 transform transition hidden">Câu tiếp theo <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </div>
+
+            <div id="quiz-result" class="hidden text-center bg-white p-8 rounded-2xl shadow-lg">
+                <div class="text-6xl text-brand-500 mb-4"><i class="fa-solid fa-trophy"></i></div>
+                <h2 class="text-2xl font-bold mb-2">Hoàn thành bài kiểm tra!</h2>
+                <p class="text-gray-600 mb-6">Điểm số của bạn: <span id="quiz-final-score" class="font-bold text-brand-600 text-xl"></span></p>
+                <button onclick="app.showActions()" class="px-6 py-2 bg-brand-600 text-white rounded-lg shadow hover:bg-brand-700">Tiếp tục học</button>
+            </div>
+        </section>
+
+        <!-- GAME MODE -->
+        <section id="view-game" class="hidden fade-in max-w-lg mx-auto pt-2">
+            <div class="flex justify-between items-center mb-4">
+                <button onclick="app.showActions()" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-arrow-left"></i> Thoát</button>
+                <div class="font-bold text-brand-600">Cặp còn lại: <span id="game-left">6</span></div>
+            </div>
+            
+            <div id="game-grid" class="grid grid-cols-4 gap-2 md:gap-3 h-full">
+                <!-- Cards injected here -->
+            </div>
+
+            <div id="game-win" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div class="bg-white p-8 rounded-2xl shadow-2xl text-center animate-bounce">
+                    <h2 class="text-3xl font-bold text-brand-600 mb-2">Xuất sắc!</h2>
+                    <p class="text-gray-600 mb-4">Bạn đã ghép đúng tất cả các thẻ.</p>
+                    <button onclick="app.showActions()" class="px-6 py-2 bg-brand-600 text-white rounded-lg">Chơi lại / Thoát</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-white border-t mt-auto py-6 text-center text-gray-400 text-sm">
+        <p>&copy; 2026 TOEIC Vocabulary Siêu Cấp Vjp Pr0. All-in-one Learning App.</p> dev by Sadmesuy ❤️
+    </footer>
+
+    <!-- LOGIC -->
+    <script src="script.js"></script>
+</body>
+</html>
