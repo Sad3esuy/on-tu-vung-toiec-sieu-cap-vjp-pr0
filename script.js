@@ -1,4 +1,4 @@
-        // 1. DATA SOURCE
+// 1. DATA SOURCE
         const vocabularyData = [
     {
         "id": "1",
@@ -834,7 +834,7 @@
             {
                 "en": "annual salary",
                 "vi": "lương hàng năm",
-                "pron": "/ˈænjuəl ˈsæləri/"
+                "pron": "/ˈænjuəl ˈsæleri/"
             },
             {
                 "en": "vacancy",
@@ -3052,6 +3052,130 @@
             handleFilter(source) {
                 this.state.filterSource = source;
                 this.renderDashboard();
+            },
+
+            // --- Data Import Feature ---
+            handleImport(input) {
+                if (input.files.length === 0) return;
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    let newData = null;
+
+                    try {
+                        if (file.name.endsWith('.json')) {
+                            newData = JSON.parse(content);
+                            if (!Array.isArray(newData)) throw new Error('Format JSON không hợp lệ (phải là mảng)');
+                        } else if (file.name.endsWith('.csv')) {
+                            newData = this.parseCSV(content);
+                        } else {
+                            alert('Chỉ hỗ trợ file .json hoặc .csv');
+                            return;
+                        }
+
+                        if (newData && newData.length > 0) {
+                            // Merge logic: Add new topics to existing data instead of replacing
+                            const confirmMsg = `Tìm thấy ${newData.length} chủ đề mới. Bạn có muốn thêm chúng vào danh sách hiện tại không?`;
+                            
+                            if (confirm(confirmMsg)) {
+                                this.data = [...this.data, ...newData];
+                                
+                                // Update filter to include new source if any
+                                // Reset filters to show potential new items
+                                this.state.filterSource = 'Custom Import'; 
+                                this.state.searchTerm = '';
+                                document.querySelector('#filter-source').value = 'Custom Import';
+                                document.querySelector('input[placeholder="Tra từ vựng..."]').value = '';
+                                
+                                // Reset learned progress only for new IDs to avoid errors
+                                newData.forEach(t => { 
+                                    if (!this.state.learnedWords[t.id]) {
+                                        this.state.learnedWords[t.id] = []; 
+                                    }
+                                });
+                                
+                                this.renderDashboard();
+                                
+                                // Count total words
+                                const totalWords = newData.reduce((acc, t) => acc + (t.words ? t.words.length : 0), 0);
+                                alert(`Import thành công! Đã thêm ${newData.length} chủ đề với ${totalWords} từ vựng mới.`);
+                            }
+                        } else {
+                            alert('File không chứa dữ liệu hợp lệ.');
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Lỗi khi đọc file: ' + err.message);
+                    }
+                    
+                    // Reset input
+                    input.value = '';
+                };
+
+                reader.readAsText(file);
+            },
+
+            parseCSV(csvText) {
+                const lines = csvText.trim().split('\n');
+                if (lines.length < 2) return []; // Only header or empty
+
+                // Expected Header: Topic, Word, Meaning, Pronunciation
+                // We'll group by Topic
+                const topicsMap = {};
+                let topicCounter = 1;
+
+                // Skip header (row 0)
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+                    
+                    // Simple CSV split by comma (doesn't handle quoted commas well but sufficient for simple requirement)
+                    const parts = line.split(',');
+                    // Handle cases where pronunciation might be missing or extra commas
+                    // Ideally use a CSV parser lib, but manual split for simplicity:
+                    // Format: Topic, Word, Meaning, Pronunciation
+                    if (parts.length < 3) continue;
+
+                    const topicTitle = parts[0].trim();
+                    const en = parts[1].trim();
+                    const vi = parts[2].trim();
+                    const pron = parts[3] ? parts[3].trim() : '';
+
+                    if (!topicsMap[topicTitle]) {
+                        topicsMap[topicTitle] = {
+                            id: `custom_${topicCounter++}`,
+                            title: topicTitle,
+                            icon: "fa-book", // Default icon
+                            color: "bg-indigo-500", // Default color
+                            source: "Custom Import",
+                            words: []
+                        };
+                    }
+
+                    topicsMap[topicTitle].words.push({ en, vi, pron });
+                }
+
+                return Object.values(topicsMap);
+            },
+
+            downloadTemplate() {
+                // Prepare sample CSV
+                const csvContent = "Topic, Word, Meaning, Pronunciation\n" +
+                                   "Common Phrases, Hello, Xin chào, /həˈləʊ/\n" +
+                                   "Common Phrases, Thank you, Cảm ơn, /θæŋk juː/\n" +
+                                   "Work, Meeting, Cuộc họp, /ˈmiːtɪŋ/";
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement("a");
+                const url = URL.createObjectURL(blob);
+                link.setAttribute("href", url);
+                link.setAttribute("download", "toeic_template.csv");
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
             },
 
             // --- Dashboard Logic ---

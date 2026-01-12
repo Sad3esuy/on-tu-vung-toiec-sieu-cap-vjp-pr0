@@ -142,6 +142,11 @@
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex space-x-4">
                     <button onclick="app.goHome()" class="text-gray-600 hover:text-brand-600 px-3 py-2 rounded-md font-medium transition">Dashboard</button>
+                    <!-- Move Import Button to Header -->
+                    <button onclick="document.getElementById('import-file').click()" class="text-indigo-600 hover:text-indigo-800 px-3 py-2 rounded-md font-medium transition"><i class="fa-solid fa-file-import mr-1"></i> Import</button>
+                    <input type="file" id="import-file" class="hidden" accept=".json, .csv" onchange="app.handleImport(this)">
+                    <button onclick="app.downloadTemplate()" class="text-gray-600 hover:text-gray-800 px-3 py-2 text-sm rounded-md transition" title="Tải file mẫu"><i class="fa-solid fa-download"></i></button>
+
                     <button onclick="app.resetProgress()" class="text-red-500 hover:text-red-700 px-3 py-2 text-sm rounded-md transition"><i class="fa-solid fa-trash-can mr-1"></i> Reset Data</button>
                     <button onclick="app.toggleDarkMode()" class="text-gray-600 hover:text-yellow-400 px-3 py-2 rounded-md font-medium transition dark:text-gray-300"><i class="fa-solid fa-moon"></i></button>
                 </div>
@@ -151,6 +156,12 @@
                     <button onclick="app.goHome(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-600 hover:text-brand-600 hover:bg-gray-50 transition">
                         <i class="fa-solid fa-home mr-2"></i>Dashboard
                     </button>
+                    <button onclick="document.getElementById('import-file').click(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 transition">
+                         <i class="fa-solid fa-file-import mr-2"></i>Import Data
+                    </button>
+                    <button onclick="app.downloadTemplate(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 transition">
+                        <i class="fa-solid fa-download mr-2"></i>Tải mẫu
+                   </button>
                     <button onclick="app.resetProgress(); app.toggleMobileMenu()" class="block w-full text-left px-4 py-2 text-red-500 hover:text-red-700 hover:bg-red-50 transition">
                         <i class="fa-solid fa-trash-can mr-2"></i>Reset Data
                     </button>
@@ -224,6 +235,7 @@
                     <option value="Part 3">Part 3</option>
                     <option value="Part 4">Part 4</option>
                     <option value="General">Từ vựng chung</option>
+                    <option value="Custom Import">Custom Import</option>
                 </select>
             </div>
 
