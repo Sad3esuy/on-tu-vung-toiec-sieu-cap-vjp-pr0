@@ -2431,7 +2431,7 @@
             {
                 "en": "Utility company",
                 "vi": "Công ty tiện ích công cộng (cung ứng điện,",
-                "pron": "/juːˈtɪləti ˈkʌmpəni/"
+                "pron": "/juːˈtɪləti ˈkʌmpani/"
             },
             {
                 "en": "Car show",
@@ -2700,6 +2700,19 @@
 
             // --- Initialization ---
             init() {
+                // Load Custom Data from LocalStorage
+                const savedCustom = localStorage.getItem('toeic_custom_data');
+                if (savedCustom) {
+                    try {
+                        const parsed = JSON.parse(savedCustom);
+                        if (Array.isArray(parsed)) {
+                            this.data = [...this.data, ...parsed];
+                        }
+                    } catch(e) {
+                        console.error("Error loading custom data", e);
+                    }
+                }
+
                 // Initialize Data with Mock Sources if missing
                 this.data.forEach((t, i) => {
                     if (!t.source) {
@@ -2991,6 +3004,14 @@
                 }
             },
 
+            saveCustomData() {
+                // Save only items that are not in the original const vocabularyData
+                // We identify them by checking against the original list
+                const originalIds = new Set(vocabularyData.map(d => d.id));
+                const customItems = this.data.filter(d => !originalIds.has(d.id));
+                localStorage.setItem('toeic_custom_data', JSON.stringify(customItems));
+            },
+
             // --- Navigation / View Switching ---
             hideAllViews() {
                 document.querySelectorAll('main > section').forEach(el => el.classList.add('hidden'));
@@ -3068,6 +3089,14 @@
                         if (file.name.endsWith('.json')) {
                             newData = JSON.parse(content);
                             if (!Array.isArray(newData)) throw new Error('Format JSON không hợp lệ (phải là mảng)');
+                            
+                            // Enhance JSON data with custom IDs if needed or mark them
+                            newData = newData.map(item => ({
+                                ...item,
+                                source: item.source || 'Custom Import',
+                                id: item.id || `custom_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+                            }));
+
                         } else if (file.name.endsWith('.csv')) {
                             newData = this.parseCSV(content);
                         } else {
@@ -3081,6 +3110,9 @@
                             
                             if (confirm(confirmMsg)) {
                                 this.data = [...this.data, ...newData];
+                                
+                                // Save to localStorage
+                                this.saveCustomData();
                                 
                                 // Update filter to include new source if any
                                 // Reset filters to show potential new items
